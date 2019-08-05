@@ -3,8 +3,10 @@
     "pages/splash/main",
     "pages/index/main",
     "pages/index/gridview/main",
-    "pages/logs/main",
-    "pages/logs/blessDetail/main",
+    "pages/navigation/main",
+    "pages/navigation/map/main",
+    "pages/bless/main",
+    "pages/bless/blessDetail/main",
     "pages/counter/main"
   ],
   "window": {
@@ -22,36 +24,41 @@
     "list": [{
       "text": "首页",
       "pagePath": "pages/index/main",
-      "iconPath": "static/tabs/home.png",
-      "selectedIconPath": "static/tabs/home-active.png"
+      "iconPath": "static/images/tab/ic_home_normal.png",
+      "selectedIconPath": "static/images/tab/ic_home_select.png"
     }, {
       "text": "导航",
-      "pagePath": "pages/logs/main",
-      "iconPath": "static/tabs/orders.png",
-      "selectedIconPath": "static/tabs/orders-active.png"
+      "pagePath": "pages/navigation/main",
+      "iconPath": "static/images/tab/ic_nav_normal.png",
+      "selectedIconPath": "static/images/tab/ic_nav_select.png"
     }, {
       "text": "祝福",
-      "pagePath": "pages/logs/main",
-      "iconPath": "static/tabs/orders.png",
-      "selectedIconPath": "static/tabs/orders-active.png"
+      "pagePath": "pages/bless/main",
+      "iconPath": "static/images/tab/ic_heart_normal.png",
+      "selectedIconPath": "static/images/tab/ic_heart_normal.png"
     }],
 
     "items": [{
       "name": "首页",
       "pagePath": "pages/index/main",
-      "icon": "static/tabs/home.png",
-      "activeIcon": "static/tabs/home-active.png"
+      "icon": "static/images/tab/ic_home_normal.png",
+      "activeIcon": "static/images/tab/ic_home_select.png"
     }, {
       "name": "导航",
-      "pagePath": "pages/logs/main",
-      "icon": "static/tabs/orders.png",
-      "activeIcon": "static/tabs/orders-active.png"
+      "pagePath": "pages/navigation/main",
+      "icon": "static/images/tab/ic_nav_normal.png",
+      "activeIcon": "static/images/tab/ic_nav_select.png"
     }, {
       "name": "祝福",
-      "pagePath": "pages/logs/main",
-      "icon": "static/tabs/orders.png",
-      "activeIcon": "static/tabs/orders-active.png"
+      "pagePath": "pages/bless/main",
+      "icon": "static/images/tab/ic_heart_normal.png",
+      "activeIcon": "static/images/tab/ic_heart_normal.png"
     }],
     "position": "bottom"
-  }
+  },
+  "permission": {
+  "scope.userLocation": {
+  "desc": "你的位置信息将用于导航信息展示"
+}
+}
 }

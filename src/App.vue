@@ -8,7 +8,10 @@ export default {
     hostUserId: null,
     isOfficial: true,
     isCreate: true,
-    isShowAd: null
+    isShowAd: null,
+    longitude: 0,
+    latitude: 0,
+    address: ''
   },
   created () {
     // 调用API从本地缓存中获取数据

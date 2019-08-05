@@ -1,0 +1,294 @@
+<template>
+  <div>
+
+    <image src='/image/inv.png' class='inv'></image>
+    <image :src=mapDate.bgImgUrl
+           class='cover' mode='aspectFill'></image>
+    <div class='datetime'>
+      <div class='box'>
+        <div class="name css13610f7ae66601">
+          <span class="fl">{{ mapDate.nameTitle }}</span>
+        </div>
+        <div class="date css13610f7ae66601">
+          <div>{{ mapDate.solarCalendar }}</div>
+          <div>{{ mapDate.lunarCalendar }}</div>
+          <div @click="doNavigation">{{ mapDate.address }} (点击导航)</div>
+          <div>恭请您的光临</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+// import { formatTime } from '@/utils/index'
+import card from '@/components/card'
+import api from '@/api/api.js'
+import app from '@/App'
+export default {
+  components: {
+    card
+  },
+
+  data () {
+    return {
+      mapDate: {
+        bgImgUrl: '',
+        nameTitle: '',
+        solarCalendar: '',
+        lunarCalendar: '',
+        address: '',
+        longitude: '',
+        latitude: ''
+      }
+    }
+  },
+  methods: {
+    doNavigation: function () {
+      wx.navigateTo({
+        url: 'map/main'
+      })
+    }
+  },
+  created () {
+    var that = this
+    wx.request({
+      url: api.mobileIn + 'getMapInfo',
+      method: 'GET',
+      success: function (res) {
+        that.mapDate = res.data.data
+        // 经纬度设置为全局变量
+        app.globalData.longitude = parseInt(res.data.data.longitude)
+        app.globalData.latitude = parseInt(res.data.data.latitude)
+        app.globalData.address = res.data.data.address
+      }
+    })
+  }
+}
+</script>
+
+<style>
+  /* pages/invitation/index.wxss */
+
+  .container {
+    min-height: 100vh;
+  }
+  .edit_bg{
+    z-index:200;
+    left: 90%;
+    top: 45%;
+    position: absolute;
+    text-align: right;
+  }
+  .confirm-btn {
+    font-size: 7pt;
+    height: 25px;
+    width: 80px;
+    text-align: center;
+
+  }
+  .cover{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 750rpx;
+    height: 100vh;
+  }
+  .inv {
+    width: 572rpx;
+    height: 69rpx;
+    position: fixed;
+    top: 80rpx;
+    left: 89rpx;
+    z-index: 99
+  }
+  .datetime {
+    position: fixed;
+    bottom: 50rpx;
+    width: 620rpx;
+    padding: 15rpx;
+    left: 50rpx;
+    background-color: rgba(255, 255, 255, .8)
+  }
+  .box {
+    padding: 30rpx 0;
+    position: relative;
+    border: 4rpx solid rgba(0, 0, 0, .8);
+  }
+  .we {
+    position: absolute;
+    bottom: 0;
+    left: 40rpx;
+    width: 520rpx;
+    height: 14rpx;
+  }
+  .date {
+    text-align: center;
+    font-size: 30rpx;
+    line-height: 50rpx;
+    margin-top: 20rpx;
+  }
+
+  .name {
+    width: 400rpx;
+    margin: 0 auto;
+    min-height: 0;
+    overflow: hidden;
+    font-size: 50rpx;
+    line-height: 50rpx;
+    text-align: center;
+  }
+
+
+  .tel {
+    width: 500rpx;
+    margin: 0 auto;
+    min-height: 0;
+    overflow: hidden;
+    text-align: center;
+    font-size: 20rpx;
+    line-height: 50rpx;
+    margin-top: 20rpx;
+    margin-bottom: 20rpx;
+  }
+
+  .tel_he {
+    width: 200rpx;
+    float: left;
+  }
+
+  .tel_she {
+    width: 200rpx;
+    float: right;
+  }
+
+  .call {
+    width: 80rpx;
+    height: 80rpx;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .call image {
+    width: 80rpx;
+    height: 80rpx;
+    margin-bottom: 10rpx;
+  }
+
+  .background_music{
+    position: fixed;
+    top: 20rpx;
+    right: 0;
+    z-index: 10001;
+    width: 100rpx;
+  }
+  .musicImg{
+    width: 60rpx;
+    height: 60rpx;
+  }
+  .music_icon{
+    animation:musicRotate 3s linear infinite;
+  }
+  .music_play{
+    width:28rpx;
+    height: 60rpx;
+    margin-left:-5px;
+    transform-origin: top;
+    -webkit-transform:rotate(20deg)
+  }
+  .playImg{
+    animation:musicStop 1s linear forwards ;
+  }
+  .pauseImg{
+    animation:musicStart 1s linear forwards ;
+  }
+  @-webkit-keyframes musicRotate{
+    from{-webkit-transform:rotate(0deg);}
+    to{-webkit-transform:rotate(360deg);}
+  }
+  @-webkit-keyframes musicStop{
+    from{-webkit-transform:rotate(20deg);}
+    to{-webkit-transform:rotate(0deg);}
+  }
+  @-webkit-keyframes musicStart{
+    from{-webkit-transform:rotate(0deg);}
+    to{-webkit-transform:rotate(20deg);}
+  }
+  .music_stop{width:4em;display:none;}
+
+  .show-btn {
+    margin-top: 100rpx;
+    color: #22cc22;
+  }
+  .modal-mask {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #000;
+    opacity: 0.5;
+    overflow: hidden;
+    z-index: 9000;
+    color: #fff;
+  }
+  .modal-dialog {
+    width: 540rpx;
+    overflow: hidden;
+    position: fixed;
+    top: 50%;
+    left: 0;
+    z-index: 9999;
+    background: #fff;
+    margin: -180rpx 105rpx;
+    border-radius: 36rpx;
+  }
+  .modal-title {
+    padding-top: 50rpx;
+    font-size: 36rpx;
+    color: #030303;
+    text-align: center;
+  }
+  .modal-content {
+    padding: 50rpx 32rpx;
+  }
+  .modal-input {
+    display: flex;
+    background: #fff;
+    border-bottom: 2rpx solid #ddd;
+    border-radius: 4rpx;
+    font-size: 28rpx;
+  }
+  .input {
+    width: 100%;
+    height: 82rpx;
+    font-size: 28rpx;
+    line-height: 28rpx;
+    padding: 0 20rpx;
+    box-sizing: border-box;
+    color: #333;
+  }
+  input-holder {
+    color: #666;
+    font-size: 28rpx;
+  }
+  .modal-footer {
+    display: flex;
+    flex-direction: row;
+    height: 86rpx;
+    border-top: 1px solid #dedede;
+    font-size: 34rpx;
+    line-height: 86rpx;
+  }
+  .btn-cancel {
+    width: 50%;
+    color: #666;
+    text-align: center;
+    border-right: 1px solid #dedede;
+  }
+  .btn-confirm {
+    width: 50%;
+    color: #ec5300;
+    text-align: center;
+  }
+</style>
