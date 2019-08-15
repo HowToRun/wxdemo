@@ -20,8 +20,12 @@
 <script>
 import api from '@/api/api.js'
 import app from '@/App'
-var AppId = 'wx66cceb965b3b9a14'
-var AppSecret = '9137735114bf8ca1516c133b49f60ab4'
+// 正式环境
+var AppId = 'wx5ddf33b1371e2915'
+var AppSecret = '64fe5cb578b822b730897f0945204ebb'
+// 开发测试
+// var AppId = 'wx66cceb965b3b9a14'
+// var AppSecret = '9137735114bf8ca1516c133b49f60ab4'
 export default {
   data () {
     return {
@@ -82,6 +86,7 @@ export default {
     // 调用登录接口，获取 code
     wx.login({
       success: function (res) {
+        console.log(res.code)
         // 发起网络请求
         wx.request({
           url: api.mobileIn + 'getOpenId',
@@ -115,6 +120,7 @@ export default {
         if (e.errMsg === 'getUserInfo:ok') {
           console.log('获取用户信息成功')
           app.globalData.userInfo = e.rawData
+          console.log(app.globalData.userInfo)
         } else {
           console.log('fail', '获取用户信息失败')
           wx.showModal({

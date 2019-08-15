@@ -3,6 +3,7 @@
     "pages/splash/main",
     "pages/index/main",
     "pages/index/gridview/main",
+    "pages/index/upload/main",
     "pages/navigation/main",
     "pages/navigation/map/main",
     "pages/bless/main",

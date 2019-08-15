@@ -1,8 +1,9 @@
 <template>
   <div class="container">
     <scroll-div class="content" scroll-y="true">
-      <div>
-        <image class='add_ic' :src='test'></image>
+      <div v-show=isAdmin>
+        <input
+               type="button" value="上传图集" @click="chooseImg">
       </div>
       <div v-for="img in imgData" class='list bannerStyle'>
         <div class='list-title'>
@@ -31,13 +32,16 @@ import app from '@/App'
 export default {
   data () {
     return {
+      isAdmin: false,
+      openId: app.globalData.openId,
       motto: 'yihan.hu',
       testmotto: 'testmotto',
       userInfo: {
         nickName: 'yihan.hu',
         avatarUrl: ''
       },
-      imgData: []
+      imgData: [],
+      adminOpenId: app.globalData.adminOpenId
     }
   },
   components: {
@@ -51,6 +55,12 @@ export default {
       } else {
         mpvue.navigateTo({ url })
       }
+    },
+    chooseImg: function () {
+      console.log('chooseImg')
+      wx.navigateTo({
+        url: 'upload/main'
+      })
     },
     clickHandle (ev) {
       console.log('clickHandle:', ev)
@@ -84,6 +94,16 @@ export default {
   },
   created () {
   },
+  onShow: function () {
+    this.getHomeImg()
+    var openId = this.openId
+    var admins = this.adminOpenId
+    for (var i = 0; i < admins.length; i++) {
+      if (openId === admins[i]) {
+        this.isAdmin = true
+      }
+    }
+  },
   onLoad: function () {
     console.log('index user info:', app.globalData.userInfo)
     console.log('save user')
@@ -102,7 +122,7 @@ export default {
         console.log('saveUser successed')
       }
     })
-    this.getHomeImg()
+    // this.getHomeImg()
     console.log(this.imgData)
   }
 }

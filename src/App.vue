@@ -11,7 +11,8 @@ export default {
     isShowAd: null,
     longitude: 0,
     latitude: 0,
-    address: ''
+    address: '',
+    adminOpenId: ['oZXhO5e33AzkFk6DmymEXyE2doCE']
   },
   created () {
     // 调用API从本地缓存中获取数据

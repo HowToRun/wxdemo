@@ -7,6 +7,19 @@
       </div>
       <div class='text'>
         <text style="width: 294.5px;  font-family: guiqi; border-color: rgb(0, 0, 0); border-style: none; border-radius: 0px; font-style: normal; font-weight: normal; text-align: center; color: rgb(100, 60, 27); font-size: 13px; line-height: 1.5; box-shadow: black 0px 0px 0px; letter-spacing: 0px; top: 0px; left: 0px;">{{ img.desc }}</text>
+        <input @click="tapSendTele" :data-code=img.code style="font-size: 24rpx;" type="button" value="编辑" v-show="adminOpenId.indexOf(openId)!==-1">
+      </div>
+    </div>
+    <!--填写描述弹框-->
+    <div class="modalMask" v-if="isModel"></div>
+    <div class="modalDialog" v-if="changeModel">
+      <div class="modalContent">
+        <p class="contentTip">输入图片描述</p>
+        <input type="number" placeholder="输入图片描述" class="teleStyle" v-model="imgDesc">
+      </div>
+      <div class="modalFooter">
+        <div class="btnCancel" @tap="tapCancel">取消</div>
+        <div class="btnConfirm" @tap="confirmSend">确定发送</div>
       </div>
     </div>
 
@@ -26,10 +39,16 @@ export default {
   },
   data () {
     return {
+      currentCode: '',
+      changeModel: false,
+      isModel: false,
+      imgDesc: '',
+      openId: app.globalData.openId,
       imgUrlsDefaultPre: [
       ],
       imgData: [
-      ]
+      ],
+      adminOpenId: app.globalData.adminOpenId
     }
   },
   methods: {
@@ -38,6 +57,51 @@ export default {
     },
     decrement () {
       store.commit('decrement')
+    },
+    // 打开输入描述的模态框
+    tapSendTele (e) {
+      this.changeModel = !this.changeModel
+      this.isModel = !this.isModel
+      // 将当前编辑的图片code提到公共状态供其他函数选择
+      var code = e.currentTarget.dataset.code
+      this.currentCode = code
+      console.log(this.currentCode)
+    },
+    //  弹框取消
+    tapCancel () {
+      this.phoneNumber = ''
+      this.changeModel = !this.changeModel
+      this.isModel = !this.isModel
+      // 将当前图片的code记录清除
+      this.currentCode = ''
+      console.log(this.currentCode)
+    },
+    //  确认发送
+    confirmSend () {
+      var that = this
+      console.log(this.imgDesc)
+      // 发送请求修改评论
+      wx.request({
+        url: api.host + 'image/updateDesc',
+        method: 'POST',
+        data: {
+          desc: that.imgDesc,
+          code: that.currentCode
+        },
+        success: function (res) {
+          console.log(res.data.message)
+        }
+      })
+      // 隐藏模态框
+      this.changeModel = !this.changeModel
+      this.isModel = !this.isModel
+      // 将当前图片的code记录清除
+      this.imgDesc = ''
+      this.currentCode = ''
+    },
+    showEditModo: function () {
+      var that = this
+      that.isHidden = true
     },
     previewImage: function (e) {
       var that = this
@@ -219,4 +283,79 @@ export default {
     color: #ec5300;
     text-align: center;
   }
+  .modalMask {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #000;
+    opacity: 0.5;
+    overflow: hidden;
+    z-index: 9000;
+    color: #fff;
+  }
+  .modalDialog {
+    box-sizing: border-box;
+    width: 560rpx;
+    /*height: 330 px;*/
+    overflow: hidden;
+    position: fixed;
+    top: 50%;
+    left: 0;
+    z-index: 9999;
+    background: #fff;
+    margin: -180rpx 95rpx;
+    border-radius: 8rpx;
+  }
+  .modalContent {
+    box-sizing: border-box;
+    display: flex;
+    padding: 50rpx 53rpx;
+    font-size: 36rpx;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .contentTip{
+    text-align: center;
+    font-size: 36rpx;
+    color: #333333;
+  }
+  .teleStyle{
+    background: #FFFFFF;
+    border: 1rpx solid #979797;
+    border-radius: 6rpx;
+    line-height: 50rpx;
+    height: 50rpx;
+    box-sizing: border-box;
+    padding-left: 12rpx;
+    width: 460rpx;
+    font-size: 28rpx;
+    /*color: rgba(0,0,0,0.25);*/
+    margin-top: 30rpx;
+  }
+  .modalFooter {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    height: 100rpx;
+    border-top: 1rpx solid #E5E5E5;
+    font-size: 36rpx;
+    line-height: 100rpx;
+  }
+  .btnCancel {
+    width: 50%;
+    font-size: 36rpx;
+    color: #333;
+    text-align: center;
+    border-right: 1rpx solid #E5E5E5;
+    }
+  .btnConfirm {
+    font-size: 36rpx;
+    width: 50%;
+    color: #508CEE;
+    text-align: center;
+  }
+
 </style>
