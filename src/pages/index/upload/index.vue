@@ -44,61 +44,85 @@ export default {
     },
     uploadImg: function () {
       console.log('upload')
-      var that = this
+      const that = this
       console.log(that.imgData[0])
       wx.showLoading({
         title: '照片正在上传中。。。 ',
         mask: true
       })
-      wx.uploadFile({
-        url: api.host + 'image/imgUpload?flag=0',
-        filePath: that.imgData[0],
-        name: 'file',
-        header: { 'Content-Type': 'multipart/form-data' },
-        success: function (res) {
-          var data = JSON.parse(res.data)
-          that.bannerCode = data.data
-          if (that.imgData.length > 2) {
-            that.uploadDetailImg()
-          }
-          wx.hideLoading()
-          wx.showModal({
-            title: '上传成功',
-            showCancel: false,
-            complete: function (res) {
-              wx.navigateBack({
-                delta: 1
-              })
-            }
+      console.log('bannerCode' + this.bannerCode)
+      if (this.bannerCode === '') {
+        this.uploadImgWithoutBanner()
+      } else {
+        this.uploadImgWithBanner()
+      }
+      wx.hideLoading()
+      wx.showModal({
+        title: '上传成功',
+        showCancel: false,
+        complete: function (res) {
+          wx.navigateBack({
+            delta: 1
           })
-          console.log(data.data)
         }
       })
     },
-    uploadDetailImg: function () {
-      var that = this
-      for (var i = 1; i < that.imgData.length; i++) {
+    uploadImgWithBanner () {
+      const that = this
+      for (let i = 0; i < that.imgData.length; i++) {
         wx.uploadFile({
           url: api.host + 'image/imgUpload?&bannerCode=' + that.bannerCode,
           filePath: that.imgData[i],
           name: 'file',
           header: { 'Content-Type': 'multipart/form-data' },
           success: function (res) {
-            var data = JSON.parse(res.data)
+            let data = JSON.parse(res.data)
+            console.log(data.data)
+          }
+        })
+      }
+    },
+    uploadImgWithoutBanner () {
+      const that = this
+      wx.uploadFile({
+        url: api.host + 'image/imgUpload?flag=0',
+        filePath: that.imgData[0],
+        name: 'file',
+        header: { 'Content-Type': 'multipart/form-data' },
+        success: function (res) {
+          let data = JSON.parse(res.data)
+          that.bannerCode = data.data
+          if (that.imgData.length > 2) {
+            that.uploadDetailImg()
+          }
+          console.log(data.data)
+        }
+      })
+    },
+    uploadDetailImg: function () {
+      const that = this
+      for (let i = 1; i < that.imgData.length; i++) {
+        wx.uploadFile({
+          url: api.host + 'image/imgUpload?&bannerCode=' + that.bannerCode,
+          filePath: that.imgData[i],
+          name: 'file',
+          header: { 'Content-Type': 'multipart/form-data' },
+          success: function (res) {
+            let data = JSON.parse(res.data)
             console.log(data.data)
           }
         })
       }
     },
     chooseImg: function () {
-      var that = this
+      const that = this
       wx.chooseImage({
         count: 9, // 默认9
         sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
         sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
         success: function (res) {
           // 返回选定照片的本地文件路径列表，tempFilePath可以作为img标签的src属性显示图片
-          var tempFilePaths = res.tempFilePaths
+          let tempFilePaths = res.tempFilePaths
           that.imgData.push.apply(that.imgData, tempFilePaths)
         }
       })
@@ -106,6 +130,14 @@ export default {
   },
   onShow: function () {
     this.imgData = []
+    let options = this.$root.$mp.query
+    console.log('options.id======>' + options.id)
+    if (options.id === undefined) {
+      console.log('options.id======>' + false)
+    } else {
+      console.log('options.id======>' + true)
+      this.bannerCode = options.id
+    }
   },
   onLoad: function () {
   }

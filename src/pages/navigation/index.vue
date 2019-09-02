@@ -25,6 +25,7 @@
 import card from '@/components/card'
 import api from '@/api/api.js'
 import app from '@/App'
+import userUtil from '@/utils/UserInfoUtil'
 export default {
   components: {
     card
@@ -50,8 +51,13 @@ export default {
       })
     }
   },
-  created () {
-    var that = this
+  onShow () {
+    if (!app.globalData.isLogin) {
+      userUtil.getUserInfo()
+    }
+  },
+  onLoad () {
+    const that = this
     wx.request({
       url: api.mobileIn + 'getMapInfo',
       method: 'GET',

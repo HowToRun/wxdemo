@@ -54,7 +54,7 @@ export default {
       })
     },
     zan: function (event) {
-      var that = this
+      const that = this
       wx.request({
         url: api.mobileIn + 'doPraise',
         data: {
@@ -76,7 +76,7 @@ export default {
       })
     },
     getPraiseList: function () {
-      var that = this
+      const that = this
       wx.request({
         url: api.mobileIn + 'getPraise',
         method: 'GET',
@@ -92,7 +92,7 @@ export default {
       })
     },
     getCommentList: function () {
-      var that = this
+      const that = this
       wx.request({
         url: api.mobileIn + 'getComment',
         method: 'GET',
@@ -103,10 +103,10 @@ export default {
       })
     },
     foo: function () {
-      var that = this
+      const that = this
       if (that.inputValue) {
         // 留言内容不是空值
-        var words = that.inputValue
+        let words = that.inputValue
         console.log(words)
         console.log(app.globalData.openId)
         wx.request({
@@ -143,7 +143,7 @@ export default {
   created () {
   },
   onLoad: function () {
-    var that = this
+    const that = this
     wx.request({
       url: api.mobileIn + 'getPraise',
       method: 'GET',

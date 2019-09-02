@@ -11,7 +11,7 @@
           <image class="wave" :src="wave" mode="aspectFill"></image>
           <image class="wave wave-bg" :src="wave" mode="aspectFill"></image>
         </div>
-        <button class="confirm-btn" open-type='getUserInfo' @click="btnEnter">点击进入</button>
+        <button class="confirm-btn" open-type="getUserInfo" @click="btnEnter">点击进入</button>
       </div>
     </div>
   </div>
@@ -21,11 +21,11 @@
 import api from '@/api/api.js'
 import app from '@/App'
 // 正式环境
-var AppId = 'wx5ddf33b1371e2915'
-var AppSecret = '64fe5cb578b822b730897f0945204ebb'
+const AppId = 'wx5ddf33b1371e2915'
+const AppSecret = '64fe5cb578b822b730897f0945204ebb'
 // 开发测试
-// var AppId = 'wx66cceb965b3b9a14'
-// var AppSecret = '9137735114bf8ca1516c133b49f60ab4'
+// const AppId = 'wx66cceb965b3b9a14'
+// const AppSecret = '9137735114bf8ca1516c133b49f60ab4'
 export default {
   data () {
     return {
@@ -38,6 +38,29 @@ export default {
   },
 
   methods: {
+    getUserInfo () {
+      console.log('getUserInfo')
+      wx.getUserInfo({
+        success: function (e) {
+          if (e.errMsg === 'getUserInfo:ok') {
+            console.log('获取用户信息成功')
+            app.globalData.userInfo = e.rawData
+            console.log(app.globalData.userInfo)
+          } else {
+            console.log('fail', '获取用户信息失败')
+            wx.showModal({
+              title: '提示',
+              content: '获取用户信息失败',
+              showCancel: false,
+              confirmColor: '#e2211c',
+              success (res) {
+              }
+            })
+          }
+        }
+      })
+      console.log('index user info:', app.globalData.userInfo)
+    },
     bindViewTap () {
       const url = '../logs/main'
       if (mpvuePlatform === 'wx') {
@@ -46,95 +69,72 @@ export default {
         mpvue.navigateTo({ url })
       }
     },
+    getOpenId () {
+      // 调用登录接口，获取 code
+      wx.login({
+        success: function (res) {
+          console.log(res.code)
+          // 发起网络请求
+          wx.request({
+            url: api.mobileIn + 'getOpenId',
+            data: {
+              appid: AppId,
+              secret: AppSecret,
+              code: res.code,
+              grantType: 'authorization_code'
+            },
+            header: {
+              method: 'GET_OPENID'
+            },
+            method: 'GET',
+            success: function (res) {
+              let openid = res.data.data.openid
+              // 将openId设成全局
+              app.globalData.openId = openid
+              console.log('res.data.openid', res.data.data.openid)
+            },
+            fail: function (res) { },
+            complete: function (res) {
+            }
+          })
+        }
+      })
+    },
     clickHandle (ev) {
       console.log('clickHandle:', ev)
       // throw {message: 'custom test'}
     },
     btnEnter () {
       console.log('btnEnter')
+      // this.getUserInfo()
       wx.switchTab({
         url: '/pages/index/main'
       })
     }
   },
   created () {
-    console.log('index/index.vue log!')
-    // let app = getApp()
-  },
-  getUserInfo (e) {
-    console.log('getUserInfo')
-    var that = this
-    if (e.detail.errMsg === 'getUserInfo:ok') {
-      console.log('获取用户信息成功')
-      app.globalData.userInfo = e.detail.rawData
-      console.log('app.globalData.userInfo', app.globalData.userInfo)
-      that.getUser()
-    } else {
-      console.log('fail', '获取用户信息失败')
-      wx.showModal({
-        title: '提示',
-        content: '获取用户信息失败',
-        showCancel: false,
-        confirmColor: '#e2211c',
-        success (res) {
-
-        }
-      })
-    }
   },
   onLoad: function () {
-    // 调用登录接口，获取 code
-    wx.login({
-      success: function (res) {
-        console.log(res.code)
-        // 发起网络请求
-        wx.request({
-          url: api.mobileIn + 'getOpenId',
-          data: {
-            appid: AppId,
-            secret: AppSecret,
-            code: res.code,
-            grantType: 'authorization_code'
-          },
-          header: {
-            method: 'GET_OPENID'
-          },
-          method: 'GET',
-          success: function (res) {
-            var openid = res.data.data.openid
-            // 将openId设成全局
-            app.globalData.openId = openid
-            console.log('res.data.openid', res.data.data.openid)
-          },
-          fail: function (res) { },
-          complete: function (res) {
-          }
-        })
-      }
-    })
-  },
-  onReady: function () {
-    console.log('getUserInfo')
-    wx.getUserInfo({
-      success: function (e) {
-        if (e.errMsg === 'getUserInfo:ok') {
-          console.log('获取用户信息成功')
-          app.globalData.userInfo = e.rawData
-          console.log(app.globalData.userInfo)
-        } else {
-          console.log('fail', '获取用户信息失败')
-          wx.showModal({
-            title: '提示',
-            content: '获取用户信息失败',
-            showCancel: false,
-            confirmColor: '#e2211c',
-            success (res) {
+    wx.getSetting({
+      success (res) {
+        if (!res.authSetting['scope.userInfo']) {
+          wx.authorize({
+            scope: 'scope.userInfo',
+            success () {
+              console.log('authorize success')
+            },
+            fail () {
+              console.log('authorize fail')
             }
           })
         }
       }
     })
-    console.log('index user info:', app.globalData.userInfo)
+  },
+  onReady: function () {
+    this.getOpenId()
+  },
+  onShow () {
   }
 }
 </script>

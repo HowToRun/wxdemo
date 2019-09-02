@@ -12,6 +12,8 @@ export default {
     longitude: 0,
     latitude: 0,
     address: '',
+    isAdmin: false,
+    isLogin: false,
     adminOpenId: ['oZXhO5e33AzkFk6DmymEXyE2doCE']
   },
   created () {

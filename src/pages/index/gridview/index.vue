@@ -1,5 +1,9 @@
 <template>
   <div class='div_bg'>
+    <div v-show=isAdmin>
+      <input
+        type="button" value="上传照片" @click="chooseImg">
+    </div>
     <div v-for="img in imgData">
 
       <div class="img">
@@ -7,7 +11,8 @@
       </div>
       <div class='text'>
         <text style="width: 294.5px;  font-family: guiqi; border-color: rgb(0, 0, 0); border-style: none; border-radius: 0px; font-style: normal; font-weight: normal; text-align: center; color: rgb(100, 60, 27); font-size: 13px; line-height: 1.5; box-shadow: black 0px 0px 0px; letter-spacing: 0px; top: 0px; left: 0px;">{{ img.desc }}</text>
-        <input @click="tapSendTele" :data-code=img.code style="font-size: 24rpx;" type="button" value="编辑" v-show="adminOpenId.indexOf(openId)!==-1">
+        <input @click="tapSendTele" :data-code=img.code style="font-size: 24rpx;" type="button" value="编辑" v-show=isAdmin>
+        <!--<input @click="tapSendTele" :data-code=img.code style="font-size: 24rpx;" type="button" value="删除" v-show=isAdmin>-->
       </div>
     </div>
     <!--填写描述弹框-->
@@ -39,6 +44,7 @@ export default {
   },
   data () {
     return {
+      isAdmin: app.globalData.isAdmin,
       currentCode: '',
       changeModel: false,
       isModel: false,
@@ -52,6 +58,38 @@ export default {
     }
   },
   methods: {
+    chooseImg () {
+      let options = this.$root.$mp.query
+      wx.navigateTo({
+        url: '../upload/main?id=' + options.id
+      })
+    },
+    getData () {
+      const that = this
+      let options = this.$root.$mp.query
+      wx.request({
+        url: api.mobileIn + 'getDetailImage',
+        method: 'GET',
+        data: {
+          openId: app.globalData.openId,
+          id: options.id
+
+        },
+        success: function (res) {
+          if (res.data.data.list.length === 0) {
+            wx.showModal({
+              title: '图集内容为空',
+              content: '当前图集中无照片，等待管理员上传'
+            })
+          }
+          that.$set(that, 'imgData', res.data.data.list)
+          that.$set(that, 'imgUrlsDefaultPre', res.data.data.srcList)
+          console.log(that.imgData)
+          // that.imgData = res.data.data.list
+          // that.imgUrlsDefaultPre = res.data.data.srcList
+        }
+      })
+    },
     increment () {
       store.commit('increment')
     },
@@ -63,7 +101,7 @@ export default {
       this.changeModel = !this.changeModel
       this.isModel = !this.isModel
       // 将当前编辑的图片code提到公共状态供其他函数选择
-      var code = e.currentTarget.dataset.code
+      let code = e.currentTarget.dataset.code
       this.currentCode = code
       console.log(this.currentCode)
     },
@@ -78,9 +116,9 @@ export default {
     },
     //  确认发送
     confirmSend () {
-      var that = this
+      const that = this
       console.log(this.imgDesc)
-      // 发送请求修改评论
+      // 发送请求修改描述
       wx.request({
         url: api.host + 'image/updateDesc',
         method: 'POST',
@@ -89,7 +127,7 @@ export default {
           code: that.currentCode
         },
         success: function (res) {
-          console.log(res.data.message)
+          that.getData()
         }
       })
       // 隐藏模态框
@@ -100,14 +138,14 @@ export default {
       this.currentCode = ''
     },
     showEditModo: function () {
-      var that = this
+      const that = this
       that.isHidden = true
     },
     previewImage: function (e) {
-      var that = this
+      const that = this
       // 图片详情中点击图片浏览大图方法
       // 获取页面src中的query参数
-      var options = this.$root.$mp.query
+      let options = this.$root.$mp.query
       // 获取当前点击的图片的src
       let imgSrc = e.currentTarget.dataset.src
       console.log(options.id)
@@ -121,22 +159,24 @@ export default {
       })
     }
   },
-  onLoad: function () {
-    var that = this
-    var options = this.$root.$mp.query
+  onShow: function () {
+    const that = this
+    that.getData()
+    // 验证当前用户是否具有管理员权限
     wx.request({
-      url: api.mobileIn + 'getDetailImage',
+      url: api.mobileIn + 'isAdmin',
       method: 'GET',
       data: {
-        openId: app.globalData.openId,
-        id: options.id
-
+        openId: app.globalData.openId
       },
       success: function (res) {
-        that.imgData = res.data.data.list
-        that.imgUrlsDefaultPre = res.data.data.srcList
+        that.isAdmin = res.data.data
+        console.log('isAdmin:' + res.data.data)
       }
     })
+  },
+  onLoad: function () {
+    this.getData()
   }
 }
 </script>

@@ -17,6 +17,8 @@
           </div>
         </div>
         <div class="jump" :data-id=img.code @click='jump'>查看详情</div>
+        <!--<div style="line-height: 50rpx;bottom: 0rpx;height: 45rpx;background: darkgray;color: #000;"-->
+             <!--class="jump" :data-id=img.code @click='jump'>删除</div>-->
 
       </div>
 
@@ -32,7 +34,7 @@ import app from '@/App'
 export default {
   data () {
     return {
-      isAdmin: false,
+      isAdmin: app.globalData.isAdmin,
       openId: app.globalData.openId,
       motto: 'yihan.hu',
       testmotto: 'testmotto',
@@ -56,7 +58,53 @@ export default {
         mpvue.navigateTo({ url })
       }
     },
-    chooseImg: function () {
+    getUserInfo () {
+      const that = this
+      console.log('getUserInfo')
+      wx.getUserInfo({
+        success: function (e) {
+          if (e.errMsg === 'getUserInfo:ok') {
+            console.log('获取用户信息成功')
+            app.globalData.userInfo = e.rawData
+            console.log(app.globalData.userInfo)
+            that.saveUser()
+          } else {
+            console.log('fail', '获取用户信息失败')
+            wx.showModal({
+              title: '提示',
+              content: '获取用户信息失败',
+              showCancel: false,
+              confirmColor: '#e2211c',
+              success (res) {
+              }
+            })
+          }
+        }
+      })
+      console.log('index user info:', app.globalData.userInfo)
+    },
+    saveUser () {
+      wx.request({
+        url: api.mobileIn + 'saveUser',
+        method: 'GET',
+        header: {
+          method: 'SAVE_USER'
+        },
+        data: {
+          openId: app.globalData.openId,
+          userInfo: app.globalData.userInfo
+
+        },
+        success: function (res) {
+          if (res.data.code === '000000') {
+            // 记录登陆标记
+            app.globalData.isLogin = true
+            console.log('saveUser successed')
+          }
+        }
+      })
+    },
+    chooseImg () {
       console.log('chooseImg')
       wx.navigateTo({
         url: 'upload/main'
@@ -76,17 +124,17 @@ export default {
     },
     getHomeImg () {
       console.log('before:', this.imgData)
-      var that = this
-      var imgs = []
+      const that = this
+      let imgs = []
       wx.request({
         url: api.mobileIn + 'getHomeImg',
         method: 'GET',
         data: {
           openId: app.globalData.openId
-
         },
         success: function (res) {
-          that.imgData = res.data.data
+          // that.imgData = res.data.data
+          that.$set(that, 'imgData', res.data.data)
           console.log('rest imgs', imgs)
         }
       })
@@ -96,34 +144,26 @@ export default {
   },
   onShow: function () {
     this.getHomeImg()
-    var openId = this.openId
-    var admins = this.adminOpenId
-    for (var i = 0; i < admins.length; i++) {
-      if (openId === admins[i]) {
-        this.isAdmin = true
-      }
+    const that = this
+    if (!app.globalData.isLogin) {
+      that.getUserInfo()
     }
-  },
-  onLoad: function () {
-    console.log('index user info:', app.globalData.userInfo)
-    console.log('save user')
+    // 验证当前用户是否具有管理员权限
     wx.request({
-      url: api.mobileIn + 'saveUser',
+      url: api.mobileIn + 'isAdmin',
       method: 'GET',
-      header: {
-        method: 'SAVE_USER'
-      },
       data: {
-        openId: app.globalData.openId,
-        userInfo: app.globalData.userInfo
-
+        openId: app.globalData.openId
       },
       success: function (res) {
-        console.log('saveUser successed')
+        // that.isAdmin = res.data.data
+        that.$set(that, 'isAdmin', res.data.data)
+        console.log('isAdmin:' + res.data.data)
       }
     })
-    // this.getHomeImg()
-    console.log(this.imgData)
+  },
+  onLoad: function () {
+    // this.getUserInfo()
   }
 }
 </script>
@@ -1149,7 +1189,7 @@ export default {
   .list.bannerStyle .jump {
     position: absolute;
     right: 30rpx;
-    bottom: 40rpx;
+    bottom: 50rpx;
     width: 140rpx;
     height: 50rpx;
     line-height: 50rpx;

@@ -1,5 +1,5 @@
 // base地址 47.104.198.222
-const host = 'http://49.232.47.21/marryService/'
+const host = 'https://www.yihancloud.cn/marryService/'
 // const host = 'http://localhost:8090/marryService/'
 const image = host + 'wechat/image/'
 const marry = host + 'wechat/marry/'

@@ -49,6 +49,7 @@
 import card from '@/components/card'
 import api from '@/api/api.js'
 import app from '@/App'
+import userUtil from '@/utils/UserInfoUtil'
 export default {
   components: {
     card
@@ -76,8 +77,38 @@ export default {
         url: 'blessDetail/main'
       })
     },
+    getComment () {
+      const that = this
+      wx.request({
+        url: api.mobileIn + 'getComment',
+        method: 'GET',
+        success: function (res) {
+          // that.commentData = res.data.data
+          that.$set(that, 'commentData', res.data.data)
+          console.log('getComment info', res.data.data)
+        }
+      })
+    },
+    getPraise () {
+      const that = this
+      wx.request({
+        url: api.mobileIn + 'getPraise',
+        method: 'GET',
+        success: function (res) {
+          that.blessDataAll = res.data.data
+          if (that.blessDataAll.length > 10) {
+            // that.blessDataLess = that.blessDataAll.slice(0, 10)
+            that.$set(that, 'blessDataLess', that.blessDataAll.slice(0, 10))
+          } else {
+            // that.blessDataLess = that.blessDataAll
+            that.$set(that, 'blessDataLess', that.blessDataAll)
+          }
+          console.log('praise info', res.data.data)
+        }
+      })
+    },
     zan: function (event) {
-      var that = this
+      const that = this
       wx.request({
         url: api.mobileIn + 'doPraise',
         data: {
@@ -99,37 +130,40 @@ export default {
       })
     },
     getPraiseList: function () {
-      var that = this
+      const that = this
       wx.request({
         url: api.mobileIn + 'getPraise',
         method: 'GET',
         success: function (res) {
           that.blessDataAll = res.data.data
           if (that.blessDataAll.length > 10) {
-            that.blessDataLess = that.blessDataAll.slice(0, 10)
+            // that.blessDataLess = that.blessDataAll.slice(0, 10)
+            that.$set(that, 'blessDataLess', that.blessDataAll.slice(0, 10))
           } else {
-            that.blessDataLess = that.blessDataAll
+            // that.blessDataLess = that.blessDataAll
+            that.$set(that, 'blessDataLess', that.blessDataAll)
           }
           console.log('praise info', res.data.data)
         }
       })
     },
     getCommentList: function () {
-      var that = this
+      const that = this
       wx.request({
         url: api.mobileIn + 'getComment',
         method: 'GET',
         success: function (res) {
-          that.commentData = res.data.data
+          // that.commentData = res.data.data
+          that.$set(that, 'commentData', res.data.data)
           console.log('getComment info', res.data.data)
         }
       })
     },
     foo: function () {
-      var that = this
+      const that = this
       if (that.inputValue) {
         // 留言内容不是空值
-        var words = that.inputValue
+        let words = that.inputValue
         console.log(words)
         console.log(app.globalData.openId)
         wx.request({
@@ -146,7 +180,7 @@ export default {
               that.getCommentList()
               wx.showModal({
                 title: '提示',
-                content: res.data,
+                content: res.data.message,
                 showCancel: false
               })
             }
@@ -165,29 +199,14 @@ export default {
   },
   created () {
   },
+  onShow () {
+    if (!app.globalData.isLogin) {
+      userUtil.getUserInfo()
+    }
+  },
   onLoad: function () {
-    var that = this
-    wx.request({
-      url: api.mobileIn + 'getPraise',
-      method: 'GET',
-      success: function (res) {
-        that.blessDataAll = res.data.data
-        if (that.blessDataAll.length > 10) {
-          that.blessDataLess = that.blessDataAll.slice(0, 10)
-        } else {
-          that.blessDataLess = that.blessDataAll
-        }
-        console.log('praise info', res.data.data)
-      }
-    })
-    wx.request({
-      url: api.mobileIn + 'getComment',
-      method: 'GET',
-      success: function (res) {
-        that.commentData = res.data.data
-        console.log('getComment info', res.data.data)
-      }
-    })
+    this.getPraise()
+    this.getComment()
   }
 }
 </script>
